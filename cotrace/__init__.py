@@ -1,4 +1,5 @@
 import sys
+import time
 import logging
 import functools
 from pathlib import Path
@@ -8,17 +9,24 @@ stack = [None]
 
 
 class P():
-    def __init__(self):
+    def __init__(self, need_time):
         self.pre = None
         self.n = 0
         self.first = True
+        self.need_time = need_time
+        self.start_time = time.time()
 
     def _g(self):
         if self.n > 1:
-            sys.stdout.write(f'\r{self.pre} * {self.n}')
+            sys.stdout.write('\r')
+            if self.need_time:
+                sys.stdout.write('%.3f' % (time.time()-self.start_time))
+            sys.stdout.write(f'{self.pre} * {self.n}')
         if self.n == 1:
             if not self.first:
                 sys.stdout.write('\n')
+            if self.need_time:
+                sys.stdout.write('%.3f' % (time.time()-self.start_time))
             sys.stdout.write(self.pre)
             self.first = False
 
@@ -31,9 +39,6 @@ class P():
         self._g()
 
 
-pj = P()
-
-
 @functools.lru_cache(maxsize=None)
 def pa(filename):
     try:
@@ -44,7 +49,10 @@ def pa(filename):
 
 
 def auto_call_trace(paths, *, width=60, indent=2):
+    pj = P(need_time=True)
     paths = set([Path(x).resolve() for x in paths])
+    print(f'时间 | 函数名{" "*(width-14)}位置 | 次数')
+    print('='*(width+10))
     def f(frame, event, arg):
         try:
             if not pa(frame.f_code.co_filename) & paths:
