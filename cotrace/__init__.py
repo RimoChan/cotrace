@@ -1,14 +1,16 @@
 import sys
 import time
+import shutil
 import logging
 import functools
 from pathlib import Path
+from typing import Optional
 
 
-stack = [None]
+stack: Optional['frame'] = [None]
 
 
-class P():
+class P:
     def __init__(self, need_time):
         self.pre = None
         self.n = 0
@@ -40,7 +42,7 @@ class P():
 
 
 @functools.lru_cache(maxsize=None)
-def pa(filename):
+def 计算所有祖先(filename):
     try:
         pt = Path(filename).resolve()
     except OSError:
@@ -48,14 +50,16 @@ def pa(filename):
     return set([*pt.parents, pt])
 
 
-def auto_call_trace(paths, *, width=60, indent=2):
+def auto_call_trace(paths, *, width=None, indent=2):
+    if width is None:
+        width = shutil.get_terminal_size((80, 20)).columns - 20
     pj = P(need_time=True)
     paths = set([Path(x).resolve() for x in paths])
     print(f'时间 | 函数名{" "*(width-14)}位置 | 次数')
     print('='*(width+10))
     def f(frame, event, arg):
         try:
-            if not pa(frame.f_code.co_filename) & paths:
+            if not 计算所有祖先(frame.f_code.co_filename) & paths:
                 return
             rs = [frame]
             p = frame
@@ -71,7 +75,7 @@ def auto_call_trace(paths, *, width=60, indent=2):
             for i, x in enumerate(s):
                 缩进 = ' '*indent*(len(stack)-len(s)+i-1)
                 c = x.f_code
-                前 = 缩进+c.co_name
+                前 = 缩进+c.co_qualname
                 后 = f'[L{c.co_firstlineno}, {c.co_filename}]'
                 l = len(前+后)
                 l += len([i for i in 前+后 if ord(i) > 127])
