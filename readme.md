@@ -141,7 +141,7 @@ from diffusers import StableDiffusionXLPipeline
 from cotrace import auto_call_trace
 
 pipe = StableDiffusionXLPipeline.from_single_file(
-    "E:/stable-diffusion-webui/models/Stable-diffusion/ConfusionXL4.0_fp16_vae.safetensors",
+    "ConfusionXL5.0_fp16_vae.safetensors",
     torch_dtype=torch.float16,
 ).to("cuda")
 
