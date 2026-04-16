@@ -9,6 +9,8 @@ from typing import Optional, Iterable, List
 
 stack: List[Optional['frame']] = [None]
 
+trace_exception = None
+
 
 class P:
     def __init__(self, need_time):
@@ -58,6 +60,7 @@ def auto_call_trace(paths: Iterable[str], *, width: Optional[int] = None, indent
     print(f'时间 | 函数名{" "*(width-14)}位置 | 次数')
     print('='*(width+10))
     def f(frame, event, arg):
+        global trace_exception
         try:
             if not 计算所有祖先(frame.f_code.co_filename) & paths:
                 return
@@ -75,11 +78,12 @@ def auto_call_trace(paths: Iterable[str], *, width: Optional[int] = None, indent
             for i, x in enumerate(s):
                 缩进 = ' '*indent*(len(stack)-len(s)+i-1)
                 c = x.f_code
-                前 = 缩进+getattr(c, 'co_qualname', c.name)
+                前 = 缩进+getattr(c, 'co_qualname', c.co_name)
                 后 = f'[L{c.co_firstlineno}, {c.co_filename}]'
                 l = len(前+后)
                 l += len([i for i in 前+后 if ord(i) > 127])
                 pj.count_print(f'|{前}{max(1, width-2-l)*" "}{后}|')
         except Exception as e:
             logging.exception(e)
+            trace_exception = e
     sys.settrace(f)

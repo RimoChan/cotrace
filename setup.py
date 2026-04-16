@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name='cotrace',
-    version='1.0.1',
+    version='1.1.0',
     author='RimoChan',
     author_email='the@librian.net',
     description='cotrace',
