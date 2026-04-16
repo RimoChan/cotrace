@@ -4,10 +4,10 @@ import shutil
 import logging
 import functools
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Iterable, List
 
 
-stack: Optional['frame'] = [None]
+stack: List[Optional['frame']] = [None]
 
 
 class P:
@@ -50,7 +50,7 @@ def 计算所有祖先(filename):
     return set([*pt.parents, pt])
 
 
-def auto_call_trace(paths, *, width=None, indent=2):
+def auto_call_trace(paths: Iterable[str], *, width: Optional[int] = None, indent: int = 2):
     if width is None:
         width = shutil.get_terminal_size((80, 20)).columns - 20
     pj = P(need_time=True)
@@ -75,7 +75,7 @@ def auto_call_trace(paths, *, width=None, indent=2):
             for i, x in enumerate(s):
                 缩进 = ' '*indent*(len(stack)-len(s)+i-1)
                 c = x.f_code
-                前 = 缩进+c.co_qualname
+                前 = 缩进+getattr(c, 'co_qualname', c.name)
                 后 = f'[L{c.co_firstlineno}, {c.co_filename}]'
                 l = len(前+后)
                 l += len([i for i in 前+后 if ord(i) > 127])

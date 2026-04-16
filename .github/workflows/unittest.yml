@@ -1,0 +1,27 @@
+name: CI
+on:
+  push:
+    branches: [ slave ]
+  pull_request:
+    branches: [ slave ]
+jobs:
+  unittest_39:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.9
+      - name: unittest
+        run: python test.py
+  unittest_313:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.13.13
+      - name: unittest
+        run: python test.py
