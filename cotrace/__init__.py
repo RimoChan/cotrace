@@ -13,26 +13,28 @@ trace_exception = None
 
 
 class P:
-    def __init__(self, need_time):
+    def __init__(self, need_time, file):
         self.pre = None
         self.n = 0
         self.first = True
         self.need_time = need_time
         self.start_time = time.time()
+        self.file = file
 
     def _g(self):
         if self.n > 1:
-            sys.stdout.write('\r')
+            self.file.write('\r')
             if self.need_time:
-                sys.stdout.write('%.3f' % (time.time()-self.start_time))
-            sys.stdout.write(f'{self.pre} * {self.n}')
+                self.file.write('%.3f' % (time.time()-self.start_time))
+            self.file.write(f'{self.pre} * {self.n}')
         if self.n == 1:
             if not self.first:
-                sys.stdout.write('\n')
+                self.file.write('\n')
             if self.need_time:
-                sys.stdout.write('%.3f' % (time.time()-self.start_time))
-            sys.stdout.write(self.pre)
+                self.file.write('%.3f' % (time.time()-self.start_time))
+            self.file.write(self.pre)
             self.first = False
+        self.file.flush()
 
     def count_print(self, x):
         x = str(x)
@@ -52,13 +54,15 @@ def 计算所有祖先(filename):
     return set([*pt.parents, pt])
 
 
-def auto_call_trace(paths: Iterable[str], *, width: Optional[int] = None, indent: int = 2):
+def auto_call_trace(paths: Iterable[str], *, width: Optional[int] = None, indent: int = 2, file=None):
     if width is None:
         width = shutil.get_terminal_size((80, 20)).columns - 20
-    pj = P(need_time=True)
+    if not file:
+        file = sys.stdout
+    pj = P(need_time=True, file=file)
     paths = set([Path(x).resolve() for x in paths])
-    print(f'时间 | 函数名{" "*(width-14)}位置 | 次数')
-    print('='*(width+10))
+    print(f'时间 | 函数名{" "*(width-14)}位置 | 次数', file=file)
+    print('='*(width+10), file=file)
     def f(frame, event, arg):
         global trace_exception
         try:
