@@ -78,7 +78,8 @@ def frame转class(frame):
         return None
 
 
-def auto_call_trace(paths: Iterable[str], *, width: Optional[int] = None, indent: int = 2, file=None):
+def auto_call_trace(paths: Iterable[str], *, width: Optional[int] = None, indent: int = 2, file=None, end_func: Iterable[str] = []):
+    end_func = set(end_func)
     if width is None:
         width = shutil.get_terminal_size((80, 20)).columns - 20
     if not file:
@@ -105,6 +106,8 @@ def auto_call_trace(paths: Iterable[str], *, width: Optional[int] = None, indent
                 rs.append(p)
             s = rs[::-1]
             stack.extend(s)
+            if end_func & {c.f_code.co_name  for c in stack[1:-1]}:
+                return
             for i, x in enumerate(s):
                 缩进 = ' '*indent*(len(stack)-len(s)+i-1)
                 c = x.f_code
